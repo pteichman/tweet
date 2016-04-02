@@ -58,7 +58,9 @@ func main() {
 		args["display_coordinates"] = []string{"true"}
 		args["geo_enabled"] = []string{"true"}
 		args["place_id"] = []string{*placeID}
-	} else if lat != "" && lon != "" {
+	}
+
+	if lat != "" && lon != "" {
 		args["display_coordinates"] = []string{"true"}
 		args["geo_enabled"] = []string{"true"}
 		args["lat"] = []string{lat}
