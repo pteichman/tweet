@@ -56,15 +56,13 @@ func main() {
 	args := url.Values{}
 	if *placeID != "" {
 		args["display_coordinates"] = []string{"true"}
-		args["geo_enabled"] = []string{"true"}
 		args["place_id"] = []string{*placeID}
 	}
 
 	if lat != "" && lon != "" {
 		args["display_coordinates"] = []string{"true"}
-		args["geo_enabled"] = []string{"true"}
 		args["lat"] = []string{lat}
-		args["lon"] = []string{lon}
+		args["long"] = []string{lon}
 	}
 
 	api := anaconda.NewTwitterApi(conf.AccessKey, conf.AccessSecret)
