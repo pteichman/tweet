@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -21,8 +22,7 @@ type Config struct {
 var (
 	configFile = flag.String("c", "", "config file (json struct)")
 	placeID    = flag.String("place", "", "place ID")
-	lat        = flag.String("lat", "", "latitude")
-	lon        = flag.String("lon", "", "longitude")
+	latlon     = flag.String("latlon", "", "latitude,longitude")
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 
 	var conf Config
 	if err = json.Unmarshal(bytes, &conf); err != nil {
-		log.Fatal("Unmarshaling config: %s", err)
+		log.Fatalf("Unmarshaling config: %s", err)
 	}
 
 	tweet := strings.Join(flag.Args(), " ")
@@ -48,16 +48,21 @@ func main() {
 	anaconda.SetConsumerKey(conf.ConsumerKey)
 	anaconda.SetConsumerSecret(conf.ConsumerSecret)
 
+	lat, lon, err := parseLatlon(*latlon)
+	if err != nil {
+		log.Fatalf("Parsing latlon: %s", err)
+	}
+
 	args := url.Values{}
 	if *placeID != "" {
 		args["display_coordinates"] = []string{"true"}
 		args["geo_enabled"] = []string{"true"}
 		args["place_id"] = []string{*placeID}
-	} else if *lat != "" && *lon != "" {
+	} else if lat != "" && lon != "" {
 		args["display_coordinates"] = []string{"true"}
 		args["geo_enabled"] = []string{"true"}
-		args["lat"] = []string{*lat}
-		args["lon"] = []string{*lon}
+		args["lat"] = []string{lat}
+		args["lon"] = []string{lon}
 	}
 
 	api := anaconda.NewTwitterApi(conf.AccessKey, conf.AccessSecret)
@@ -65,4 +70,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Posting tweet: %s", err)
 	}
+}
+
+func parseLatlon(v string) (string, string, error) {
+	comma := strings.IndexRune(v, ',')
+	if comma < 0 {
+		return "", "", errors.New("want format: lat,lon")
+	}
+
+	return v[:comma], v[comma+1:], nil
 }
