@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"strings"
 
 	"github.com/ChimeraCoder/anaconda"
@@ -19,18 +20,22 @@ type Config struct {
 
 var (
 	configFile = flag.String("c", "", "config file (json struct)")
+	placeID    = flag.String("place", "", "place ID")
+	lat        = flag.String("lat", "", "latitude")
+	lon        = flag.String("lon", "", "longitude")
 )
 
 func main() {
 	flag.Parse()
 
 	if *configFile == "" || len(flag.Args()) == 0 {
-		log.Fatal("Usage: tweet -c <config> <string to tweet>")
+		flag.PrintDefaults()
+		log.Fatal("Missing config or text")
 	}
 
 	bytes, err := ioutil.ReadFile(*configFile)
 	if err != nil {
-		log.Fatal("Reading %s: %s", *configFile, err)
+		log.Fatalf("Reading %s: %s", *configFile, err)
 	}
 
 	var conf Config
@@ -43,8 +48,20 @@ func main() {
 	anaconda.SetConsumerKey(conf.ConsumerKey)
 	anaconda.SetConsumerSecret(conf.ConsumerSecret)
 
+	args := url.Values{}
+	if *placeID != "" {
+		args["display_coordinates"] = []string{"true"}
+		args["geo_enabled"] = []string{"true"}
+		args["place_id"] = []string{*placeID}
+	} else if *lat != "" && *lon != "" {
+		args["display_coordinates"] = []string{"true"}
+		args["geo_enabled"] = []string{"true"}
+		args["lat"] = []string{*lat}
+		args["lon"] = []string{*lon}
+	}
+
 	api := anaconda.NewTwitterApi(conf.AccessKey, conf.AccessSecret)
-	_, err = api.PostTweet(tweet, nil)
+	_, err = api.PostTweet(tweet, args)
 	if err != nil {
 		log.Fatal("Posting tweet: %s", err)
 	}
