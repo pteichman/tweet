@@ -73,6 +73,10 @@ func main() {
 }
 
 func parseLatlon(v string) (string, string, error) {
+	if v == "" {
+		return "", "", nil
+	}
+
 	comma := strings.IndexRune(v, ',')
 	if comma < 0 {
 		return "", "", errors.New("want format: lat,lon")
