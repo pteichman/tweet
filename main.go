@@ -50,9 +50,12 @@ func main() {
 	anaconda.SetConsumerKey(conf.ConsumerKey)
 	anaconda.SetConsumerSecret(conf.ConsumerSecret)
 
-	lat, lon, err := parseLatlon(*latlon)
-	if err != nil {
-		log.Fatalf("Parsing latlon: %s", err)
+	var lat, lon string
+	if latlon != nil {
+		lat, lon, err = parseLatlon(*latlon)
+		if err != nil {
+			log.Fatalf("Parsing latlon: %s", err)
+		}
 	}
 
 	args := url.Values{}
@@ -86,7 +89,7 @@ func main() {
 
 	_, err = api.PostTweet(tweet, args)
 	if err != nil {
-		log.Fatal("Posting tweet: %s", err)
+		log.Fatalf("Posting tweet: %s", err)
 	}
 }
 
