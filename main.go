@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -23,6 +24,7 @@ var (
 	configFile = flag.String("c", "", "config file (json struct)")
 	placeID    = flag.String("place", "", "place ID")
 	latlon     = flag.String("latlon", "", "latitude,longitude")
+	media      = flag.String("media", "", "path to media file")
 )
 
 func main() {
@@ -66,6 +68,22 @@ func main() {
 	}
 
 	api := anaconda.NewTwitterApi(conf.AccessKey, conf.AccessSecret)
+
+	if media != nil {
+		buf, err := ioutil.ReadFile(*media)
+		if err != nil {
+			log.Fatalf("Reading media: %s: %v", *media, err)
+		}
+
+		str := base64.StdEncoding.EncodeToString(buf)
+		media, err := api.UploadMedia(str)
+		if err != nil {
+			log.Fatalf("Uploading media: %v", err)
+		}
+
+		args["media_ids"] = []string{media.MediaIDString}
+	}
+
 	_, err = api.PostTweet(tweet, args)
 	if err != nil {
 		log.Fatal("Posting tweet: %s", err)
