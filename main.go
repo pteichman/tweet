@@ -51,7 +51,7 @@ func main() {
 	anaconda.SetConsumerSecret(conf.ConsumerSecret)
 
 	var lat, lon string
-	if latlon != nil {
+	if latlon != nil && *latlon != "" {
 		lat, lon, err = parseLatlon(*latlon)
 		if err != nil {
 			log.Fatalf("Parsing latlon: %s", err)
