@@ -72,7 +72,7 @@ func main() {
 
 	api := anaconda.NewTwitterApi(conf.AccessKey, conf.AccessSecret)
 
-	if media != nil {
+	if media != nil && *media != "" {
 		buf, err := ioutil.ReadFile(*media)
 		if err != nil {
 			log.Fatalf("Reading media: %s: %v", *media, err)
