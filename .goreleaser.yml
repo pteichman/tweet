@@ -1,0 +1,11 @@
+# goreleaser config
+builds:
+  - binary: tweet
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm
+    goarm:
+      - 7
